@@ -17,29 +17,29 @@
 
 module "gke-cluster" {
   source                   = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-cluster?ref=v15.0.0"
-  for_each                 = var.clusters
+  for_each                 = { for cluster in var.clusters : cluster.cluster_location => cluster }
   project_id               = each.value.project_id
-  name                     = each.key
-  description              = each.value.cluster_description
+  name                     = join("-", tolist([var.cluster_name, each.value.cluster_location]))
+  description              = var.cluster_description
   location                 = each.value.cluster_location
-  labels                   = each.value.labels
-  network                  = each.value.network
+  labels                   = var.labels
+  network                  = var.network
   subnetwork               = each.value.subnetwork
   secondary_range_pods     = each.value.secondary_range_pods
   secondary_range_services = each.value.secondary_range_services
   cluster_autoscaling = {
     enabled    = true
-    cpu_min    = each.value.cluster_autoscaling.cpu_min
-    cpu_max    = each.value.cluster_autoscaling.cpu_max
-    memory_min = each.value.cluster_autoscaling.memory_min
-    memory_max = each.value.cluster_autoscaling.memory_max
+    cpu_min    = var.cluster_autoscale_cpu_min
+    cpu_max    = var.cluster_autoscale_cpu_max
+    memory_min = var.cluster_autoscale_mem_min
+    memory_max = var.cluster_autoscale_mem_max
   }
   addons = {
     cloudrun_config                       = false
     dns_cache_config                      = true
     http_load_balancing                   = true
     gce_persistent_disk_csi_driver_config = true
-    horizontal_pod_autoscaling            = each.value.horizontal_pod_autoscaling
+    horizontal_pod_autoscaling            = var.horizontal_pod_autoscaling
     config_connector_config               = true
     kalm_config                           = false
     gcp_filestore_csi_driver_config       = false
@@ -50,26 +50,29 @@ module "gke-cluster" {
     }
   }
   private_cluster_config = {
-    enable_private_nodes    = each.value.private_cluster_config.enable_private_nodes
-    enable_private_endpoint = each.value.private_cluster_config.enable_private_endpoint
-    master_ipv4_cidr_block  = each.value.private_cluster_config.master_ipv4_cidr_block
-    master_global_access    = each.value.private_cluster_config.master_global_access
+    enable_private_nodes    = false
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = each.value.master_ipv4_cidr_block
+    master_global_access    = false
   }
-  logging_config    = ["SYSTEM_COMPONENTS", "WORKLOADS"]
-  monitoring_config = ["SYSTEM_COMPONENTS", "WORKLOADS"]
-  database_encryption = (
-    each.value.database_encryption_key == null ? {
-      enabled  = false
-      state    = null
-      key_name = null
-      } : {
-      enabled  = true
-      state    = "ENCRYPTED"
-      key_name = each.value.database_encryption_key
-    }
-  )
-  default_max_pods_per_node   = each.value.default_max_pods_per_node
-  enable_binary_authorization = each.value.enable_binary_authorization
-  master_authorized_ranges    = each.value.master_authorized_ranges
-  vertical_pod_autoscaling    = each.value.vertical_pod_autoscaling
+  logging_config              = ["SYSTEM_COMPONENTS", "WORKLOADS"]
+  monitoring_config           = ["SYSTEM_COMPONENTS", "WORKLOADS"]
+  default_max_pods_per_node   = var.default_max_pods_per_node
+  enable_binary_authorization = var.enable_binary_authorization
+  master_authorized_ranges    = var.master_authorized_ranges
+}
+
+module "nodepool" {
+  source                      = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-nodepool?ref=v15.0.0"
+  for_each                    = { for cluster in var.clusters : cluster.cluster_location => cluster }
+  project_id                  = each.value.project_id
+  cluster_name                = module.gke-cluster[each.value.cluster_location].name
+  location                    = module.gke-cluster[each.value.cluster_location].location
+  name                        = join("-", tolist([module.gke-cluster[each.value.cluster_location].name, "np"]))
+  node_service_account_create = true
+  node_count                  = 5
+  autoscaling_config = {
+    min_node_count = 5
+    max_node_count = 20
+  }
 }
