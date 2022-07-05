@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+locals {
+  cluster_location = [for cluster in var.clusters : cluster.cluster_location]
+} // Returns list of cluster locations
 
 module "gke-cluster" {
   source                   = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-cluster?ref=v15.0.0"
@@ -75,4 +78,34 @@ module "nodepool" {
     min_node_count = 5
     max_node_count = 20
   }
+}
+
+module "gke-gateway-api" {
+  source         = "./modules/gateway-api"
+  for_each       = { for cluster in var.clusters : cluster.cluster_location => cluster }
+  endpoint       = module.gke-cluster[each.value.cluster_location].endpoint
+  ca_certificate = module.gke-cluster[each.value.cluster_location].ca_certificate
+}
+
+# Register the cluster to Anthos configuration manager
+data "google_client_config" "default" {}
+
+provider "kubernetes" {
+  count                  = length(local.cluster_location)
+  host                   = "https://${module.gke-cluster[count.index].endpoint}"
+  token                  = data.google_client_config.default.access_token
+  cluster_ca_certificate = base64decode(module.gke-cluster[count.index].ca_certificate)
+}
+
+module "acm" {
+  source       = "terraform-google-modules/kubernetes-engine/google//modules/acm"
+  for_each     = { for cluster in var.clusters : cluster.cluster_location => cluster }
+  project_id   = var.project_id
+  cluster_name = module.gke-cluster[each.value.cluster_location].name
+  location     = module.gke-cluster[each.value.cluster_location].location
+  sync_repo    = var.sync_repo
+  sync_branch  = var.sync_branch
+  policy_dir   = var.policy_dir
+
+  depends_on = [module.nodepool]
 }

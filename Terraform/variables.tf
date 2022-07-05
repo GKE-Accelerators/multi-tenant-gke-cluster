@@ -88,20 +88,20 @@ variable "default_max_pods_per_node" {
   type        = number
 }
 
-# variable "sync_repo" {
-#   description = "Sync repo"
-#   type        = string
-# }
+variable "sync_repo" {
+  description = "Sync repo"
+  type        = string
+}
 
-# variable "sync_branch" {
-#   description = "Sync Branch"
-#   type        = string
-# }
+variable "sync_branch" {
+  description = "Sync Branch"
+  type        = string
+}
 
-# variable "policy_dir" {
-#   description = "Policy Directory"
-#   type        = string
-# }
+variable "policy_dir" {
+  description = "Policy Directory"
+  type        = string
+}
 
 # variable "clusters" {
 #   description = "GKE Clusters params"
