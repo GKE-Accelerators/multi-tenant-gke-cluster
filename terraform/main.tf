@@ -20,7 +20,7 @@
 module "gke-cluster" {
   source                   = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-cluster?ref=v15.0.0"
   for_each                 = { for cluster in var.clusters : cluster.cluster_location => cluster }
-  project_id               = each.value.project_id
+  project_id               = var.project_id
   name                     = join("-", tolist([var.cluster_name, each.value.cluster_location]))
   description              = var.cluster_description
   location                 = each.value.cluster_location
@@ -67,7 +67,7 @@ module "gke-cluster" {
 module "nodepool" {
   source                      = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-nodepool?ref=v15.0.0"
   for_each                    = { for cluster in var.clusters : cluster.cluster_location => cluster }
-  project_id                  = each.value.project_id
+  project_id                  = var.project_id
   cluster_name                = module.gke-cluster[each.value.cluster_location].name
   location                    = module.gke-cluster[each.value.cluster_location].location
   name                        = join("-", tolist([module.gke-cluster[each.value.cluster_location].name, "np"]))
@@ -81,7 +81,7 @@ module "nodepool" {
 
 module "gke-hub" {
   source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-hub"
-  project_id = "jimitrangras-testproj-004"
+  project_id = var.project_id
   member_clusters = {
     for cluster in var.clusters : cluster.cluster_location => module.gke-cluster[cluster.cluster_location].id
   }

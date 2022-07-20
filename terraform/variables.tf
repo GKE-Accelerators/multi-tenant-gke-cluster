@@ -18,7 +18,6 @@
 variable "clusters" {
   description = "GKE Clusters params"
   type = list(object({
-    project_id               = string
     cluster_location         = string
     subnetwork               = string
     secondary_range_pods     = string
@@ -26,6 +25,12 @@ variable "clusters" {
     master_ipv4_cidr_block   = string
   }))
 }
+
+variable "project_id" {
+  description = "Project ID in which GKE Cluster will be created"
+  type        = string
+}
+
 
 variable "master_authorized_ranges" {
   description = "External Ip address ranges that can access the Kubernetes cluster master through HTTPS.."
