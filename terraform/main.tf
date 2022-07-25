@@ -72,10 +72,10 @@ module "nodepool" {
   location                    = module.gke-cluster[each.value.cluster_location].location
   name                        = join("-", tolist([module.gke-cluster[each.value.cluster_location].name, "np"]))
   node_service_account_create = true
-  node_count                  = 5
+  node_count                  = var.nodepool_node_count
   autoscaling_config = {
-    min_node_count = 5
-    max_node_count = 20
+    min_node_count = var.autoscale_nodepool_min_node_count
+    max_node_count = var.autoscale_nodepool_max_node_count
   }
 }
 
@@ -91,11 +91,11 @@ module "gke-hub" {
       config_sync = {
         gcp_service_account_email = null
         https_proxy               = null
-        policy_dir                = "config"
+        policy_dir                = var.policy_dir
         secret_type               = "none"
         source_format             = "hierarchy"
-        sync_branch               = "feature/multiregion-gke-cluster"
-        sync_repo                 = "https://github.com/GKE-Accelerators/multi-tenant-gke-cluster"
+        sync_branch               = var.sync_branch
+        sync_repo                 = var.sync_repo
         sync_rev                  = null
       }
       hierarchy_controller = null

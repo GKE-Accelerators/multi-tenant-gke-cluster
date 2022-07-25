@@ -42,11 +42,6 @@ variable "horizontal_pod_autoscaling" {
   type        = bool
 }
 
-variable "cluster_name" {
-  description = "Cluster name"
-  type        = string
-}
-
 variable "cluster_description" {
   description = "Cluster description"
   type        = string
@@ -90,6 +85,22 @@ variable "enable_binary_authorization" {
 
 variable "default_max_pods_per_node" {
   description = "Max no. of pods per node"
+  type        = number
+}
+
+
+variable "nodepool_node_count" {
+  description = "Nodepool Node Count"
+  type        = number
+}
+
+variable "autoscale_nodepool_min_node_count" {
+  description = "Nodepool Min. Node Count"
+  type        = number
+}
+
+variable "autoscale_nodepool_max_node_count" {
+  description = "Nodepool Max. Node Count"
   type        = number
 }
 
