@@ -26,6 +26,11 @@ variable "clusters" {
   }))
 }
 
+variable "cluster_name" {
+  description = "GKE Cluster Name"
+  type        = string
+}
+
 variable "project_id" {
   description = "Project ID in which GKE Cluster will be created"
   type        = string
