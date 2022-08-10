@@ -18,7 +18,7 @@ kubectl create secret generic git-creds \
  --from-file=ssh=/path/to/KEYPAIR_PRIVATE_KEY_FILENAME
 
 ### 4) Add the .pub key into your Git platform account
-Copy the .pub file manually in your account in the respective Git Platform
+cat KEY_NAME.pub and copy the contents manually in your account in the respective Git Platform
 
 ### 5) Repeat steps 1 and 3 for all the GKE Clusters
 For Eg: if you have 2 clusters in europe-west3 and us-east4 respectively then repeat the steps 1 and 3 to authenticate the cluster from your cloud shell and then create the namespace and secret for Anthos Config management to pull your cluster configuration
