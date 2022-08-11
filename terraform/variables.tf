@@ -29,6 +29,7 @@ variable "clusters" {
 variable "cluster_name" {
   description = "GKE Cluster Name"
   type        = string
+  default     = "multitenant-gke-cluster"
 }
 
 variable "project_id" {
