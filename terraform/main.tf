@@ -82,24 +82,38 @@ module "nodepool" {
 module "gke-hub" {
   source     = "github.com/terraform-google-modules/cloud-foundation-fabric//modules/gke-hub"
   project_id = var.project_id
-  member_clusters = {
+  clusters = {
     for cluster in var.clusters : cluster.cluster_location => module.gke-cluster[cluster.cluster_location].id
   }
-  member_features = {
-    configmanagement = {
+  features = {
+    appdevexperience             = false
+    configmanagement             = true
+    identityservice              = false
+    multiclusteringress          = null
+    servicemesh                  = false
+    multiclusterservicediscovery = false
+  }
+  configmanagement_templates = {
+    default = {
       binauthz = false
       config_sync = {
-        gcp_service_account_email = null
-        https_proxy               = null
-        policy_dir                = var.policy_dir
-        secret_type               = "none"
-        source_format             = "hierarchy"
-        sync_branch               = var.sync_branch
-        sync_repo                 = var.sync_repo
-        sync_rev                  = null
+        git = {
+          gcp_service_account_email = null
+          https_proxy               = null
+          policy_dir                = var.policy_dir
+          secret_type               = "ssh"
+          source_format             = "hierarchy"
+          sync_branch               = var.sync_branch
+          sync_repo                 = var.sync_repo
+          sync_rev                  = null
+          sync_wait_secs            = null
+        }
+        prevent_drift = false
+        source_format = "hierarchy"
       }
       hierarchy_controller = null
       policy_controller = {
+        audit_interval_seconds = 120
         exemptable_namespaces = [
           "asm-system",
           "config-management-system",
@@ -112,7 +126,10 @@ module "gke-hub" {
         referential_rules_enabled  = false
         template_library_installed = true
       }
-      version = "1.10.2"
+      version = "1.12.0"
     }
+  }
+  configmanagement_clusters = {
+    "default" = [for cluster in var.clusters : cluster.cluster_location]
   }
 }
