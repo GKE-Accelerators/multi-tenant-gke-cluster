@@ -13,12 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-# output "gke-endpoint" {
-#   value = module.gke-cluster.endpoint
-# }
-
-# output "git-creds-public" {
-#   value = module.acm.git_creds_public
-# }

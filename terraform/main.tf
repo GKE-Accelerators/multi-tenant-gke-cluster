@@ -89,7 +89,7 @@ module "gke-hub" {
     appdevexperience             = false
     configmanagement             = true
     identityservice              = false
-    multiclusteringress          = null
+    multiclusteringress          = ""
     servicemesh                  = false
     multiclusterservicediscovery = false
   }
