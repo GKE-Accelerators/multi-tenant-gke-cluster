@@ -37,15 +37,6 @@ variable "project_id" {
   type        = string
 }
 
-
-variable "master_authorized_ranges" {
-  description = "External Ip address ranges that can access the Kubernetes cluster master through HTTPS.."
-  type        = map(string)
-  default = {
-    "public" = "0.0.0.0/0"
-  }
-}
-
 variable "horizontal_pod_autoscaling" {
   description = "Enable / Disable Horizontal Pod Autoscaling"
   type        = bool

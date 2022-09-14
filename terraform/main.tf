@@ -61,7 +61,7 @@ module "gke-cluster" {
   monitoring_config           = ["SYSTEM_COMPONENTS", "WORKLOADS"]
   default_max_pods_per_node   = var.default_max_pods_per_node
   enable_binary_authorization = var.enable_binary_authorization
-  master_authorized_ranges    = var.master_authorized_ranges
+  master_authorized_ranges    = {}
 }
 
 module "nodepool" {
@@ -89,7 +89,7 @@ module "gke-hub" {
     appdevexperience             = false
     configmanagement             = true
     identityservice              = false
-    multiclusteringress          = null
+    multiclusteringress          = ""
     servicemesh                  = false
     multiclusterservicediscovery = false
   }
